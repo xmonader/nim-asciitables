@@ -7,6 +7,7 @@ asciitables has a very simple api
 - `setHeaders` to set column names
 - `addRow` to add a row to the table
 - `addRows` to add multiple rows at once
+- `suggestWidths` to suggest widths for each column
 
 ### options and styles
 - cellEdge controls the the corners of each cell default is `+`
@@ -79,7 +80,31 @@ and if you don't want `separateRows`
 |399|CCC    |1018-5-2 |
 +---+-------+---------+
 ```
+and to suggest widths for columns
+```nim
 
+  t.reset()
+  t.suggestWidths(@[10, 80, 30])
+  t.setHeaders(@["ID", "Name", "Date"])
+  t.addRow(@["1", "Aaaa", "2018-10-2"])
+  t.addRow(@["2", "bbvbbba", "2018-10-2"])
+  t.addRow(@["399", "CCC", "1018-5-2"])
+  printTable(t)
+
+
+```
+you will see 
+```
++----------+--------------------------------------------------------------------------------+------------------------------+
+|ID        |Name                                                                            |Date                          |
++----------+--------------------------------------------------------------------------------+------------------------------+
+|1         |Aaaa                                                                            |2018-10-2                     |
++----------+--------------------------------------------------------------------------------+------------------------------+
+|2         |bbvbbba                                                                         |2018-10-2                     |
++----------+--------------------------------------------------------------------------------+------------------------------+
+|399       |CCC                                                                             |1018-5-2                      |
++----------+--------------------------------------------------------------------------------+------------------------------+
+```
 
 ## Why
 I couldn't find any terminal ascii table library for nim and I found myself writing horrible code like this 

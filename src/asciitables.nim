@@ -8,9 +8,10 @@ type AsciiTable = object
   colSeparator*: string 
   cellEdge*: string
   widths: seq[int]
+  suggestedWidths: seq[int]
   tableWidth*: int
   separateRows*: bool
-  
+
 
 proc newAsciiTable*(): ref AsciiTable =
   result = new AsciiTable
@@ -20,6 +21,7 @@ proc newAsciiTable*(): ref AsciiTable =
   result.tableWidth=0
   result.separateRows=true
   result.widths = newSeq[int]()
+  result.suggestedWidths = newSeq[int]()
   result.rows = newSeq[seq[string]]()
   result.headers = newSeq[string]()
 
@@ -32,11 +34,27 @@ proc setRows*(this: ref AsciiTable, rows:seq[seq[string]]) =
 proc addRow*(this: ref AsciiTable, row:seq[string]) =
   this.rows.add(row)
 
+proc suggestWidths*(this: ref AsciiTable, widths:seq[int]) = 
+  this.suggestedWidths = widths
+
+proc reset*(this:ref AsciiTable) =
+  this.rowSeparator="-"
+  this.colSeparator="|"
+  this.cellEdge="+"
+  this.tableWidth=0
+  this.separateRows=true
+  this.widths = newSeq[int]()
+  this.suggestedWidths = newSeq[int]()
+  this.rows = newSeq[seq[string]]()
+  this.headers = newSeq[string]()
+
 proc calculateWidths(this: ref AsciiTable) =
   var colsWidths = newSeq[int]()
-  for i in countup(1, this.headers.len):
-    colsWidths.add(0) 
-
+  if this.suggestedWidths.len == 0:
+    for i in countup(1, this.headers.len):
+      colsWidths.add(0) 
+  else:
+    colsWidths = this.suggestedWidths
   
   for row in this.rows:
     for colpos, c in row:
@@ -50,7 +68,9 @@ proc calculateWidths(this: ref AsciiTable) =
 
   if this.tablewidth > lenHeaders:
       for colpos, c in colsWidths:
+        if this.suggestedWidths.len == 0:
           colsWidths[colpos] += sizeForCol - c
+
   this.widths = colsWidths
   
 proc oneLine(this: ref AsciiTable): string =
@@ -100,4 +120,12 @@ when isMainModule:
 
   t.tableWidth = 0
   t.separateRows = false
+  printTable(t)
+
+  t.reset()
+  t.suggestWidths(@[10, 80, 30])
+  t.setHeaders(@["ID", "Name", "Date"])
+  t.addRow(@["1", "Aaaa", "2018-10-2"])
+  t.addRow(@["2", "bbvbbba", "2018-10-2"])
+  t.addRow(@["399", "CCC", "1018-5-2"])
   printTable(t)
