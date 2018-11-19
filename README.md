@@ -4,9 +4,9 @@ simple terminal ascii tables for nim
 ## How to use
 asciitables has a very simple api
 
-1- `setHeaders` to set column names
-2- `addRow` to add a row to the table
-3- `addRows` to add multiple rows at once
+- `setHeaders` to set column names
+- `addRow` to add a row to the table
+- `addRows` to add multiple rows at once
 
 ### options and styles
 - cellEdge controls the the corners of each cell default is `+`
@@ -31,7 +31,7 @@ when isMainModule:
 
 ```
 
-should yield
+should render
 ```
 +---------------------------+---------------------------+---------------------------+
 |ID                         |Name                       |Date                       |
@@ -79,3 +79,38 @@ and if you don't want `separateRows`
 |399|CCC    |1018-5-2 |
 +---+-------+---------+
 ```
+
+
+## Why
+I couldn't find any terminal ascii table library for nim and I found myself writing horrible code like this 
+
+```nim
+      var widths = @[0,0,0,0]  #id, name, ports, root
+      for k, v in info:
+        if len($v.id) > widths[0]:
+          widths[0] = len($v.id)
+        if len($v.name) > widths[1]:
+          widths[1] = len($v.name)
+        if len($v.ports) > widths[2]:
+          widths[2] = len($v.ports)
+        if len($v.root) > widths[3]:
+          widths[3] = len($v.root)
+      
+      var sumWidths = 0
+      for w in widths:
+        sumWidths += w
+      
+      echo "-".repeat(sumWidths)
+
+      let extraPadding = 5
+      echo "| ID"  & " ".repeat(widths[0]+ extraPadding-4) & "| Name" & " ".repeat(widths[1]+extraPadding-6) & "| Ports" & " ".repeat(widths[2]+extraPadding-6 ) & "| Root" &  " ".repeat(widths[3]-6)
+      echo "-".repeat(sumWidths)
+  
+
+      for k, v in info:
+        let nroot = replace(v.root, "https://hub.grid.tf/", "").strip()
+        echo "|" & $v.id & " ".repeat(widths[0]-len($v.id)-1 + extraPadding) & "|" & v.name & " ".repeat(widths[1]-len(v.name)-1 + extraPadding) & "|" & v.ports & " ".repeat(widths[2]-len(v.ports)+extraPadding) & "|" & nroot & " ".repeat(widths[3]-len(v.root)+ extraPadding-2) & "|"
+        echo "-".repeat(sumWidths)
+      result = ""
+```
+Pull requests are very welcome :)
