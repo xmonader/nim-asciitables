@@ -30,9 +30,9 @@ proc `$`*(this:ref Cell): string =
 type AsciiTable = object 
   rows: seq[seq[string]]
   headers: seq[ref Cell]
-  rowSeparator*: string
-  colSeparator*: string 
-  cellEdge*: string
+  rowSeparator*: char
+  colSeparator*: char 
+  cellEdge*: char 
   widths: seq[int]
   suggestedWidths: seq[int]
   tableWidth*: int
@@ -41,9 +41,9 @@ type AsciiTable = object
 
 proc newAsciiTable*(): ref AsciiTable =
   result = new AsciiTable
-  result.rowSeparator="-"
-  result.colSeparator="|"
-  result.cellEdge="+"
+  result.rowSeparator='-'
+  result.colSeparator='|'
+  result.cellEdge='+'
   result.tableWidth=0
   result.separateRows=true
   result.widths = newSeq[int]()
@@ -72,9 +72,9 @@ proc suggestWidths*(this: ref AsciiTable, widths:seq[int]) =
   this.suggestedWidths = widths
 
 proc reset*(this:ref AsciiTable) =
-  this.rowSeparator="-"
-  this.colSeparator="|"
-  this.cellEdge="+"
+  this.rowSeparator='-'
+  this.colSeparator='|'
+  this.cellEdge='+'
   this.tableWidth=0
   this.separateRows=true
   this.widths = newSeq[int]()
@@ -106,13 +106,21 @@ proc calculateWidths(this: ref AsciiTable) =
     if this.suggestedWidths.len == 0:
       for colpos, c in colsWidths:
         colsWidths[colpos] += sizeForCol - c
-
+  
+  if this.suggestedWidths.len != 0:
+    var sumSuggestedWidths = 0
+    for s in this.suggestedWidths:
+      sumSuggestedWidths += s
+    
+    if lenHeaders > sumSuggestedWidths:
+      raise newException(ValueError, fmt"sum of {this.suggestedWidths} = {sumSuggestedWidths} and it's less than required length {lenHeaders}")      
+  
   this.widths = colsWidths
   
 proc oneLine(this: ref AsciiTable): string =
   result &= this.cellEdge
   for w in this.widths:
-    result &= "-".repeat(w) & this.cellEdge
+    result &= this.rowSeparator.repeat(w) & this.cellEdge
   result &= "\n"
 
 proc render*(this: ref AsciiTable): string =
@@ -176,7 +184,7 @@ when isMainModule:
   echo "termColumns: " & $termColumns()
 
   # width of the table is the terminal COLUMNS - the amount of separators (columns + 1)  multiplied by length of the separator
-  t.tableWidth = termColumns() - (t.columnsCount() * len(t.colSeparator)) - 1 - 5
+  t.tableWidth = termColumns() - (t.columnsCount() * len($t.colSeparator)) - 1 - 5
   t.setHeaders(@["ID", "Name", "Fav animal", "Date", "OK"])
   t.addRow(@["1", "xmonader", "Cat, Dog", "2018-10-2", "yes"])
   t.addRow(@["2", "ahmed", "Shark", "2018-10-2", "yes"])
@@ -189,11 +197,14 @@ when isMainModule:
   t.tableWidth = 0
   t.separateRows = false
   printTable(t)
-
+  
   t.reset()
-  # t.suggestWidths(@[6, 20, 60, 20])
+  # t.suggestWidths(@[12, 20, 60, 20])
   # t.setHeaders(@["ID", "Name", "Fav animal", "Date"])
-  t.setHeaders(@[newCell("ID", pad=2), newCell("Name", rightpad=10), newCell("Fav animal", pad=2), newCell("Date", 5)])
+  # t.rowSeparator='-'
+  # t.colSeparator='#'
+  # t.cellEdge = '*'
+  t.setHeaders(@[newCell("ID", pad=5), newCell("Name", rightpad=10), newCell("Fav animal", pad=2), newCell("Date", 5)])
   t.addRow(@["1", "xmonader", "Cat, Dog", "2018-10-22"])
   t.addRow(@["2", "ahmed", "Shark", "2015-12-6"])
   t.addRow(@["3", "dr who", "Humans", "1018-5-2"])
