@@ -10,7 +10,6 @@ type Cell = object
 proc newCell(text: string, leftpad=1, rightpad=1, pad=0): ref Cell =
   result = new Cell
   result.pad = pad
-
   if pad != 0:
     result.leftpad = pad
     result.rightpad = pad
@@ -19,10 +18,8 @@ proc newCell(text: string, leftpad=1, rightpad=1, pad=0): ref Cell =
     result.rightpad = rightpad
   result.text = text
 
-
 proc newCellFromAnother(another: ref Cell): ref Cell =
   result = newCell(text=another.text, leftpad=another.leftpad, rightpad=another.rightpad)
-
 
 proc len*(this:ref Cell): int =
   result = this.leftpad + this.text.len + this.rightpad
@@ -194,8 +191,9 @@ when isMainModule:
   printTable(t)
 
   t.reset()
-  t.suggestWidths(@[10, 20, 60, 10])
-  t.setHeaders(@["ID", "Name", "Fav animal", "Date"])
+  # t.suggestWidths(@[6, 20, 60, 20])
+  # t.setHeaders(@["ID", "Name", "Fav animal", "Date"])
+  t.setHeaders(@[newCell("ID", pad=2), newCell("Name", rightpad=10), newCell("Fav animal", pad=2), newCell("Date", 5)])
   t.addRow(@["1", "xmonader", "Cat, Dog", "2018-10-22"])
   t.addRow(@["2", "ahmed", "Shark", "2015-12-6"])
   t.addRow(@["3", "dr who", "Humans", "1018-5-2"])
