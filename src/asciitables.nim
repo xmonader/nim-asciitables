@@ -54,6 +54,9 @@ proc newAsciiTable*(): ref AsciiTable =
   result.rows = newSeq[seq[string]]()
   result.headers = newSeq[ref Cell]()
 
+proc columnsCount*(this: ref AsciiTable): int =
+  result = this.headers.len
+
 proc setHeaders*(this: ref AsciiTable, headers:seq[string]) =
   for s in headers:
     var cell = newCell(s)
@@ -94,7 +97,6 @@ proc calculateWidths(this: ref AsciiTable) =
     for colpos, c in row:
       var acell = newCellFromAnother(this.headers[colpos])
       acell.text = c
-
       if len(acell) > colsWidths[colpos]:
         colsWidths[colpos] = len(acell)
 
@@ -168,24 +170,23 @@ when not defined(js):
           let parts = output.splitWhitespace()
           if len(parts) == 2:
             return parts[1].strip().parseInt()
-    
     return 0
-
 
 
 when isMainModule:
 
-
-
   var t = newAsciiTable()
-  t.tableWidth = termColumns()
-  t.setHeaders(@["ID", "Name", "Date"])
-  t.addRow(@["1", "Aaaa", "2018-10-2"])
-  t.addRow(@["2", "bbvbbba", "2018-10-2"])
-  t.addRow(@["399", "CCC", "1018-5-2"])
+  echo "termColumns: " & $termColumns()
+
+  # width of the table is the terminal COLUMNS - the amount of separators (columns + 1)  multiplied by length of the separator
+  t.tableWidth = termColumns() - (t.columnsCount() * len(t.colSeparator)) - 1 - 5
+  t.setHeaders(@["ID", "Name", "Fav animal", "Date", "OK"])
+  t.addRow(@["1", "xmonader", "Cat, Dog", "2018-10-2", "yes"])
+  t.addRow(@["2", "ahmed", "Shark", "2018-10-2", "yes"])
+  t.addRow(@["3", "dr who", "Humans", "1018-5-2", "no"])
   printTable(t)
   
-  # t.tableWidth = 0
+  t.tableWidth = 0
   printTable(t)
 
   t.tableWidth = 0
@@ -193,9 +194,9 @@ when isMainModule:
   printTable(t)
 
   t.reset()
-  t.suggestWidths(@[10, 80, 30])
-  t.setHeaders(@["ID", "Name", "Date"])
-  t.addRow(@["1", "Aaaa", "2018-10-2"])
-  t.addRow(@["2", "bbvbbba", "2018-10-2"])
-  t.addRow(@["399", "CCC", "1018-5-2"])
+  t.suggestWidths(@[10, 20, 60, 10])
+  t.setHeaders(@["ID", "Name", "Fav animal", "Date"])
+  t.addRow(@["1", "xmonader", "Cat, Dog", "2018-10-22"])
+  t.addRow(@["2", "ahmed", "Shark", "2015-12-6"])
+  t.addRow(@["3", "dr who", "Humans", "1018-5-2"])
   printTable(t)
