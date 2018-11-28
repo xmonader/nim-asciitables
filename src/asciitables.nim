@@ -181,10 +181,13 @@ when not defined(js):
 when isMainModule:
 
   var t = newAsciiTable()
-  echo "termColumns: " & $termColumns()
+  var width = 150
+  when not defined(js):
+    width = termColumns()
+    echo "termColumns: " & $termColumns()
 
   # width of the table is the terminal COLUMNS - the amount of separators (columns + 1)  multiplied by length of the separator
-  t.tableWidth = termColumns() - (t.columnsCount() * len($t.colSeparator)) - 1 - 5
+  t.tableWidth = width - (t.columnsCount() * len($t.colSeparator)) - 10
   t.setHeaders(@["ID", "Name", "Fav animal", "Date", "OK"])
   t.addRow(@["1", "xmonader", "Cat, Dog", "2018-10-2", "yes"])
   t.addRow(@["2", "ahmed", "Shark", "2018-10-2", "yes"])
