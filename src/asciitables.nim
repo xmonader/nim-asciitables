@@ -1,13 +1,13 @@
 import strformat, strutils
 
 
-type Cell = object
+type Cell* = object
   leftpad*: int
   rightpad: int
   pad*: int
   text*: string
 
-proc newCell(text: string, leftpad=1, rightpad=1, pad=0): ref Cell =
+proc newCell*(text: string, leftpad=1, rightpad=1, pad=0): ref Cell =
   result = new Cell
   result.pad = pad
   if pad != 0:
@@ -27,7 +27,7 @@ proc len*(this:ref Cell): int =
 proc `$`*(this:ref Cell): string =
   result = " ".repeat(this.leftpad) & this.text & " ".repeat(this.rightpad)
 
-type AsciiTable = object 
+type AsciiTable* = object 
   rows: seq[seq[string]]
   headers: seq[ref Cell]
   rowSeparator*: char
@@ -181,10 +181,13 @@ when not defined(js):
 when isMainModule:
 
   var t = newAsciiTable()
-  echo "termColumns: " & $termColumns()
+  var width = 150
+  when not defined(js):
+    width = termColumns()
+    echo "termColumns: " & $termColumns()
 
   # width of the table is the terminal COLUMNS - the amount of separators (columns + 1)  multiplied by length of the separator
-  t.tableWidth = termColumns() - (t.columnsCount() * len($t.colSeparator)) - 1 - 5
+  t.tableWidth = width - (t.columnsCount() * len($t.colSeparator)) - 10
   t.setHeaders(@["ID", "Name", "Fav animal", "Date", "OK"])
   t.addRow(@["1", "xmonader", "Cat, Dog", "2018-10-2", "yes"])
   t.addRow(@["2", "ahmed", "Shark", "2018-10-2", "yes"])
