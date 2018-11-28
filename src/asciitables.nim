@@ -1,13 +1,13 @@
 import strformat, strutils
 
 
-type Cell = object
+type Cell* = object
   leftpad*: int
   rightpad: int
   pad*: int
   text*: string
 
-proc newCell(text: string, leftpad=1, rightpad=1, pad=0): ref Cell =
+proc newCell*(text: string, leftpad=1, rightpad=1, pad=0): ref Cell =
   result = new Cell
   result.pad = pad
   if pad != 0:
@@ -27,7 +27,7 @@ proc len*(this:ref Cell): int =
 proc `$`*(this:ref Cell): string =
   result = " ".repeat(this.leftpad) & this.text & " ".repeat(this.rightpad)
 
-type AsciiTable = object 
+type AsciiTable* = object 
   rows: seq[seq[string]]
   headers: seq[ref Cell]
   rowSeparator*: char
