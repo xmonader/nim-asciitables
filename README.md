@@ -1,6 +1,9 @@
 # nim-asciitables
 simple terminal ascii tables for nim
 
+## DEPRECATION
+project is deprecated in favor for [nim-terminaltables](https://github.com/xmonader/nim-terminaltables)
+
 ## How to use
 asciitables has a very simple api
 
